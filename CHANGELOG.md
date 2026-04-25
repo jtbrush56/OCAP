@@ -1,5 +1,85 @@
 # CHANGELOG
 
+## v2.1.0
+
+### Addon Changes
+- [[addon/#26]](https://github.com/OCAP2/addon/pull/26) Optimize fn_getUnitType
+- [[addon/#27]](https://github.com/OCAP2/addon/pull/27) Add option for manual capture start
+- [[addon/#28]](https://github.com/OCAP2/addon/pull/28) Support onLoadName for mission names
+- [[addon/#33]](https://github.com/OCAP2/addon/pull/33) OCAP 2.0: Modular architecture with database export
+- [[addon/#34]](https://github.com/OCAP2/addon/pull/34) Fix MarkerUpdated exclusion check always excluding all markers
+- [[addon/#35]](https://github.com/OCAP2/addon/pull/35) Remove erroneous PREP(sendData) from database addon
+- [[addon/#36]](https://github.com/OCAP2/addon/pull/36) Fix callExtension error by passing empty array instead of nil
+- [[addon/#37]](https://github.com/OCAP2/addon/pull/37) Fix marker side format to use string instead of numeric ID
+- [[addon/#38]](https://github.com/OCAP2/addon/pull/38) Fix HEMTT lint warnings
+- [[addon/#39]](https://github.com/OCAP2/addon/pull/39) Add GitHub Actions workflow for build validation
+- [[addon/#42]](https://github.com/OCAP2/addon/pull/42) Refactor ACE explosives to use Explode event handler
+- [[addon/#43]](https://github.com/OCAP2/addon/pull/43) Refactor projectile tracking to use lightweight array format
+- [[addon/#44]](https://github.com/OCAP2/addon/pull/44) Compatibility with Restrict Markers
+- [[addon/#45]](https://github.com/OCAP2/addon/pull/45) Add magazine icon path to projectile data
+- [[addon/#46]](https://github.com/OCAP2/addon/pull/46) Rename licence.txt to LICENSE for GitHub detection
+- [[addon/#47]](https://github.com/OCAP2/addon/pull/47) Fix re-recording after export losing data (missing NEW:MISSION)
+- [[addon/#48]](https://github.com/OCAP2/addon/pull/48) Fix vehicle tracking: ejection seats, disappeared vehicles, parachute lifetime
+- [[addon/#49]](https://github.com/OCAP2/addon/pull/49) Filter parachute/ejection seat kill events and fix dead parachute tracking
+- [[addon/#50]](https://github.com/OCAP2/addon/pull/50) Remove duplicate mission_data/time metric
+- [[addon/#51]](https://github.com/OCAP2/addon/pull/51) Fix extension VERSION parsing for new 3-element response
+- [[addon/#52]](https://github.com/OCAP2/addon/pull/52) Grant admin diary controls to already-connected players
+- [[addon/#53]](https://github.com/OCAP2/addon/pull/53) Resume tracking units that become player-controlled after disconnect
+- [[addon/#54]](https://github.com/OCAP2/addon/pull/54) Skip kill event for disconnected players
+- [[addon/#55]](https://github.com/OCAP2/addon/pull/55) Track groupID and side dynamically per unit state update
+- [[addon/#56]](https://github.com/OCAP2/addon/pull/56) Convert owner ID to string for getUserInfo in admin UI init
+- [[addon/#57]](https://github.com/OCAP2/addon/pull/57) Vehicle weapon tracking, projectile system overhaul
+- [[addon/#58]](https://github.com/OCAP2/addon/pull/58) Remove global toFixed calls that interfere with TFAR radios
+- [[addon/#59]](https://github.com/OCAP2/addon/pull/59) Remove undefined _hitThings reference in HitPart EH
+- [[addon/#60]](https://github.com/OCAP2/addon/pull/60) Unify :FPS: and :METRIC: into single :TELEMETRY: command
+- [[addon/#61]](https://github.com/OCAP2/addon/pull/61) Broadcast OCAP_id to clients for dedicated server projectile tracking
+- [[addon/#62]](https://github.com/OCAP2/addon/pull/62) Stop telemetry loop when recording is inactive
+- [[addon/#63]](https://github.com/OCAP2/addon/pull/63) Gate extension call logging behind debug mode
+- [[addon/#64]](https://github.com/OCAP2/addon/pull/64) Resolve adminUIcontrol race condition during postInit
+- [[addon/#65]](https://github.com/OCAP2/addon/pull/65) Fix diary status never updating past initial values
+- [[addon/#66]](https://github.com/OCAP2/addon/pull/66) Broadcast lastFired to server for correct kill weapon attribution
+- [[addon/#67]](https://github.com/OCAP2/addon/pull/67) Fix PFH interval variables not accessible due to private scoping
+- [[addon/#68]](https://github.com/OCAP2/addon/pull/68) Use HandleDamage for explosive kill weapon attribution
+
+### Extension Changes (v5.0.0)
+Major rewrite from C++ to Go with significant architectural changes:
+- Complete migration to Go-based recorder with database storage
+- Refactored architecture with pluggable storage backends
+- Replaced channel-based architecture with event dispatcher
+- Migrated from zerolog to slog with OpenTelemetry
+- Added WebSocket streaming storage backend
+- SQLite storage backend implementation
+- Added POLYLINE marker support
+- Projectile marker support for grenades and smokes
+- Structured weapon arrays and derived hit events
+- Dynamic groupID and side tracking in SoldierState
+- JSON export format aligned with OCAP2 web expectations
+- Comprehensive test coverage improvements
+- Multi-platform build support (Windows x64, Linux x64)
+
+### Web Changes
+- Large recording playback with chunked streaming
+- Refactored to standard Go project layout
+- Added admin UI with auth, CRUD operations, and upload
+- Steam profile display and role-based authentication
+- Canvas-based entity renderer for improved performance
+- Render all firelines per frame instead of only the first
+- Redesigned player transport controls
+- Activity heatmap timeline with vertical playhead
+- Admin-defined focus range for recordings
+- Vehicle kills column in scoreboard leaderboard
+- Migrated from Echo v4 to Fuego with OpenAPI/Swagger support
+- Render projectiles on canvas instead of Leaflet DOM markers
+- Apply marker type/color/brush changes during playback
+- Match Arma 3 coordinate grid pattern
+- Eliminate grid wobble during zoom animation
+- Add Ukrainian (українська) UI translation
+- Add Finnish (Suomi) UI translation
+- Add Italian translation
+- Add Czech localization
+- Internationalize map manager UI
+- Multiple dependency updates and CI/CD improvements
+
 ## v1.1.0
 
 ### Fixes
