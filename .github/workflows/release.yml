@@ -1,0 +1,94 @@
+name: Release Bundle
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to (re)build assets for
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - name: Checkout (with submodule pointers)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          submodules: false
+
+      - name: Resolve submodule release tags from pinned SHAs
+        id: resolve
+        run: |
+          set -euo pipefail
+          resolve() {
+            local path="$1" repo="$2"
+            local sha
+            sha=$(git ls-tree HEAD "$path" | awk '{print $3}')
+            [ -n "$sha" ] || { echo "no submodule SHA for $path" >&2; exit 1; }
+            local tag
+            tag=$(gh api --paginate "repos/$repo/releases" \
+              --jq 'sort_by(.published_at) | reverse | .[] | select(.draft==false) | .tag_name' |
+              while read -r t; do
+                csha=$(gh api "repos/$repo/commits/$t" --jq '.sha' 2>/dev/null || true)
+                if [ "$csha" = "$sha" ]; then echo "$t"; break; fi
+              done)
+            [ -n "$tag" ] || { echo "no release in $repo points to $sha" >&2; exit 1; }
+            echo "$tag"
+          }
+          ADDON_TAG=$(resolve addon OCAP2/addon)
+          EXT_TAG=$(resolve extension OCAP2/extension)
+          WEB_TAG=$(resolve web OCAP2/web)
+          echo "addon=$ADDON_TAG" | tee -a "$GITHUB_OUTPUT"
+          echo "extension=$EXT_TAG" | tee -a "$GITHUB_OUTPUT"
+          echo "web=$WEB_TAG" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Download component assets
+        run: |
+          set -euo pipefail
+          mkdir -p dl
+          gh release download "${{ steps.resolve.outputs.addon }}" \
+            --repo OCAP2/addon -p 'ocap-latest.zip' -D dl
+          gh release download "${{ steps.resolve.outputs.extension }}" \
+            --repo OCAP2/extension \
+            -p 'ocap_recorder-windows-amd64.zip' \
+            -p 'ocap_recorder-linux-amd64.tar.gz' -D dl
+          gh release download "${{ steps.resolve.outputs.web }}" \
+            --repo OCAP2/web \
+            -p 'ocap-webserver-windows-amd64.zip' \
+            -p 'ocap-webserver-linux-amd64.tar.gz' -D dl
+          ls -la dl
+
+      - name: Build windows.zip
+        run: |
+          set -euo pipefail
+          rm -rf stage && mkdir -p stage/web
+          unzip -q dl/ocap-latest.zip -d stage
+          unzip -q -o dl/ocap_recorder-windows-amd64.zip -d stage/@ocap
+          unzip -q dl/ocap-webserver-windows-amd64.zip -d stage/web
+          (cd stage && zip -qr ../windows.zip @ocap web)
+          ls -la windows.zip
+
+      - name: Build linux.tar.gz
+        run: |
+          set -euo pipefail
+          rm -rf stage && mkdir -p stage/web
+          unzip -q dl/ocap-latest.zip -d stage
+          tar -xzf dl/ocap_recorder-linux-amd64.tar.gz -C stage/@ocap --strip-components=1
+          tar -xzf dl/ocap-webserver-linux-amd64.tar.gz -C stage/web
+          tar -czf linux.tar.gz -C stage @ocap web
+          ls -la linux.tar.gz
+
+      - name: Upload assets to release
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            windows.zip linux.tar.gz \
+            --repo "$GITHUB_REPOSITORY" --clobber
