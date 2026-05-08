@@ -256,3 +256,38 @@ docker compose up -d
 ```
 
 ---
+
+## Web Server: Pterodactyl / Pelican
+
+Two panel eggs are included in the web server release archive and also available in the [OCAP2/web repository](https://github.com/OCAP2/web):
+
+| File | Panel |
+|------|-------|
+| `egg-ocap2-web.json` | [Pelican Panel](https://pelican.dev/) (PLCN_v3) |
+| `egg-ocap2-web-pterodactyl.json` | [Pterodactyl Panel](https://pterodactyl.io/) (PTDL_v2) |
+
+### 1. Import the egg
+
+In your panel's admin area, navigate to **Nests** (Pterodactyl) or **Eggs** (Pelican) and import the JSON file that matches your panel version.
+
+### 2. Create a server
+
+Create a new server using the **OCAP2 Web** egg. The panel will prompt you to set the following variables:
+
+| Variable | Description |
+|----------|-------------|
+| **OCAP Secret** | Shared secret for recording uploads. Must match `api.apiKey` in the extension config. |
+| **Enable Conversion** | Enables background JSON → Protobuf conversion for faster playback. Recommended: `true`. |
+| **Enable Streaming** | Enables live WebSocket streaming from the extension. Default: `false`. |
+| **Allowed Steam IDs** | Steam 64-bit IDs (comma-separated) granted admin access to the web UI. Optional. |
+| **Steam API Key** | For displaying Steam display names in the admin UI. Optional. |
+
+The **Listen Address** and storage path variables are pre-configured and should not need to be changed.
+
+### 3. Start the server
+
+Start the server from the panel. The install script automatically creates the required data directories.
+
+Visit the server's allocated address to confirm the web UI is accessible.
+
+> **Docker image:** The egg uses `ghcr.io/ocap2/web:full` by default, which includes the map tile processing tools. To use the smaller slim image, change the Docker image in the egg or server settings to `ghcr.io/ocap2/web:latest`.
