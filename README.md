@@ -50,6 +50,10 @@ OCAP's settings are split across three places: in-game CBA options (addon), `oca
 
 → See the **[Configuration Reference](docs/configuration.md)** for all options.
 
+### Usage
+
+For mission integration (SQF/CBA API, custom events, score counters, focus windows, admin controls) and a guide to the web playback UI, see the **[Usage Guide](docs/usage.md)**.
+
 ### Terrains
 
 A long list of Arma 3 terrains, both vanilla and modded, are provided in a link at the top of this ReadMe. To use one:
