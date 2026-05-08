@@ -193,3 +193,66 @@ Open port `5000` (TCP) on the host firewall so that:
 - Players can access the playback UI in their browser.
 
 ---
+
+## Web Server: Docker Compose
+
+Use this method if you are running the web server in Docker on a Linux host.
+
+### `docker-compose.yml`
+
+Create a `docker-compose.yml` file with the following contents:
+
+```yaml
+services:
+  ocap-web:
+    image: ghcr.io/ocap2/web:latest
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ocap_db:/var/lib/ocap/db
+      - ocap_data:/var/lib/ocap/data
+      - ocap_maps:/var/lib/ocap/maps
+    environment:
+      OCAP_SECRET: "your-shared-secret"
+      OCAP_LISTEN: "0.0.0.0:5000"
+
+volumes:
+  ocap_db:
+  ocap_data:
+  ocap_maps:
+```
+
+Set `OCAP_SECRET` to the same value as `api.apiKey` in the extension's `ocap_recorder.cfg.json`.
+
+Any `setting.json` field can be set as an environment variable using the `OCAP_` prefix with nested keys uppercased and concatenated (e.g. `auth.steamApiKey` → `OCAP_AUTH_STEAMAPIKEY`). See [Configuration Reference](configuration.md).
+
+> **Map tools:** To use the server-side map tile processing pipeline (GDAL, tippecanoe), use `ghcr.io/ocap2/web:full` instead of `:latest`.
+
+### Start the server
+
+```bash
+docker compose up -d
+docker compose logs -f   # watch startup logs
+```
+
+Visit `http://<host-ip>:5000` to confirm the server is running.
+
+### Data persistence
+
+The three named volumes store:
+
+| Volume | Contents |
+|--------|----------|
+| `ocap_db` | SQLite database (mission metadata) |
+| `ocap_data` | Uploaded recording files |
+| `ocap_maps` | Map terrain tiles |
+
+These persist across container restarts and updates. To update:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+---
