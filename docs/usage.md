@@ -43,7 +43,7 @@ if (isServer) then {
 };
 ```
 
-**Async save flow:** `ocap_fnc_exportData` is non-blocking. Players see an interim "saving…" toast immediately. The extension writes and uploads the recording in the background; once it finishes, a final diary entry confirms success or failure.
+**Async save flow:** `ocap_fnc_exportData` is non-blocking. Players see an interim "saving…" screen notification immediately. The extension writes and uploads the recording in the background; once it finishes, a final diary entry confirms success or failure.
 
 **Minimum duration:** Recordings shorter than the configured minimum (default 20 minutes) are not saved. If the recording is too short, export is skipped and a diary entry explains why. Recording continues, so the mission can still be saved once the threshold is met — or bypass it with the `OCAP_exportData` CBA event (see [Manual Recording Control](#manual-recording-control)).
 
@@ -57,7 +57,7 @@ Three CBA server events let you control recording from scripts or admin diary co
 |-------|--------|
 | `["OCAP_record"] call CBA_fnc_serverEvent;` | Start or resume recording |
 | `["OCAP_pause"] call CBA_fnc_serverEvent;` | Pause recording (data preserved; resume with `OCAP_record`) |
-| `["OCAP_exportData", [side, message, tag]] call CBA_fnc_serverEvent;` | Stop and save — **always bypasses minimum duration** |
+| `["OCAP_exportData", [Side, String, String]] call CBA_fnc_serverEvent;` | Stop and save — **always bypasses minimum duration** |
 
 Examples:
 
@@ -147,7 +147,7 @@ Or specify explicit frame numbers:
 ["OCAP_setFocusEnd", [850]] call CBA_fnc_serverEvent;
 ```
 
-The focus range can also be set interactively in the playback UI using the `I` and `O` keyboard shortcuts — see [Focus Mode](#focus-mode).
+The focus range can also be set interactively in the playback UI using the `I` and `O` keyboard shortcuts — see [Focus Mode](#focus-mode) in the Playback section below.
 
 ### Admin Controls (In-Game Diary)
 
