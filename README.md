@@ -64,44 +64,6 @@ The compressed file contains a folder titled with the world name. This folder co
 
 *If someone tried to load a recording from a session played on a terrain that wasn't installed yet, the issue may persist even after installation. To fix this, they can clear their browser cache in order to force their system to re-download the terrain tiles from the server. This will be fixed in future versions.*
 
-### Usage
-
-To end a mission and export capture data, call the following (server-side):
-
-```sqf
-// simple message
-["OPFOR Wins. Their enemies suffered heavy losses!"] call ocap_fnc_exportData;
-
-// includes side who won
-[east, "Their enemies suffered heavy losses!"] call ocap_fnc_exportData;
-
-// includes a specific 'tag', which will be filterable in the playback menu.
-// i.e. in playback menu, selecting "PvP" from the dropdown would make this and any other mission tagged "PvP" visible in the search
-[east, "OPFOR triumphed over their enemy!", "PvP"] call ocap_fnc_exportData;
-```
-
-**Tip:** You can use the above function in a trigger.
-e.g. Create a trigger that activates once all objectives complete. Then on activation:
-```sqf
-if (isServer) then {
-
-	// Saves and uploads the recording to your server
-	[east, "OPFOR has achieved all of their objectives!"] call ocap_fnc_exportData;
-
-	// Ends mission for everyone
-	"end1" call BIS_fnc_endMissionServer; 
-};
-```
-
-> **WARNING**
->
-> To ensure your recordings are saved and uploaded:
-> 1. The mission should be ended using a `BIS_fnc_endMission`/`BIS_fnc_endMissionServer` function and configured to auto-save, or the `ocap_fnc_exportData` function should be called prior to it ending. 
-> 1. The web server process should be running and able to accept incoming network connections.
->
-> If the web component is not running, the upload will fail and a local copy of the compressed recording will be saved. Logs are available in the `Arma 3/ocaplog` directory to troubleshoot.
-
-
 ---
 
 ## Detailed Features
