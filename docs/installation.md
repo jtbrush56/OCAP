@@ -34,3 +34,5 @@ If you are running the web server in Docker or on a game server panel, you only 
 | `ghcr.io/ocap2/web:full` | Includes GDAL, tippecanoe, and pmtiles for server-side map terrain tile processing |
 
 Use `:full` if you want to process and host custom Arma 3 terrain tiles through the admin UI. Use `:latest` otherwise.
+
+---
