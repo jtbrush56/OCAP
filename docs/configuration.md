@@ -39,6 +39,8 @@ Settings marked **Requires Restart** take effect only after restarting the missi
 
 ### Capture
 
+*In-game these settings appear under the **Core** category.*
+
 | Setting (variable name) | Type | Default | Description |
 |---|---|---|---|
 | `OCAP_settings_frameCaptureDelay` | Number (0.10–10.00) | `1` | Positioning, medical status, and crew states of units and vehicles will be captured every X amount of seconds. **Requires Restart.** |
@@ -245,7 +247,7 @@ Any field can be overridden via an `OCAP_<KEY>` environment variable. For nested
 
 ### `conversion`
 
-Background worker that converts uploaded recordings to an alternative format.
+Background worker that converts uploaded JSON recordings to chunked Protobuf format. This chunked format enables faster browser-side streaming by loading only the chunks needed on demand, rather than fetching the entire recording at once. Enable this worker if you want efficient playback of large recordings.
 
 | Field | Default | Description |
 |---|---|---|
@@ -258,6 +260,8 @@ Background worker that converts uploaded recordings to an alternative format.
 ### `streaming`
 
 Real-time WebSocket streaming of live recording data to connected clients.
+
+> **Note:** For the server to actually stream data, the extension's `storage.type` must also be set to `"websocket"` in `ocap_recorder.cfg.json`.
 
 | Field | Default | Description |
 |---|---|---|
