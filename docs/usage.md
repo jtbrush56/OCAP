@@ -158,3 +158,71 @@ Players who are server admins, or whose Steam UID is in `OCAP_administratorList`
 - **Stop and Export Recording** — fires `OCAP_exportData`, bypassing minimum duration
 
 The tab is added on player connect and removed if the player logs out of admin. No mission-side scripting is needed — set `OCAP_administratorList` in CBA settings to grant specific UIDs access regardless of admin status.
+
+---
+
+## Part 2: Playback
+
+### Finding a Recording
+
+Navigate to the web server address in any browser. The recording selector lists all uploaded missions with their name, upload date, and tag.
+
+- Use the **search box** to filter by mission name.
+- Use the **tag dropdown** to filter by tag (set via `ocap_fnc_exportData` or `OCAP_settings_saveTag`).
+- Use the **date pickers** to narrow by upload date.
+
+Click any recording to open it in the playback view.
+
+### Playback Controls
+
+The bottom bar contains the main controls:
+
+- **Play/Pause button** — starts or stops playback.
+- **Timeline scrubber** — click or drag to jump to any point in the recording. If a focus range was set, it is highlighted on the scrubber.
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle play/pause |
+| `E` | Toggle side panel visibility |
+| `←` / `→` | Step back / forward 1 frame |
+| `Shift+←` / `Shift+→` | Step back / forward 10 frames |
+| `,` | Jump to previous kill event |
+| `.` | Jump to next kill event |
+| `I` | Set focus in-point (focus edit mode only) |
+| `O` | Set focus out-point (focus edit mode only) |
+| `Escape` | Cancel focus edit |
+
+### Following a Unit
+
+Click any unit icon on the map to lock the camera to that unit. The map pans to keep the unit centered as the recording plays. A follow indicator appears in the UI. Click the map background or a different unit to change or release the follow lock.
+
+### Side Panel
+
+The side panel on the left has four tabs. Press `E` to hide it and maximize the map view.
+
+**Units** — all players, AI, and vehicles in the mission. Shows alive/dead state, group name, and slotted role. Click a unit to follow them on the map.
+
+**Events** — a chronological, filterable log of game events: kills, deaths, hits, player connects/disconnects, and any custom events fired via `OCAP_customEvent`. Click any event to jump to that frame. Use the filter controls to show or hide event types (e.g. hide hits to reduce noise).
+
+**Stats** — kill counts and mission summary statistics.
+
+**Chat** — in-game chat messages recorded during the session, with timestamps.
+
+### Focus Mode
+
+To set a focus range interactively while watching a recording:
+
+1. Click the focus toolbar button to enter focus edit mode.
+2. Navigate to the desired start point, then press `I`.
+3. Navigate to the desired end point, then press `O`.
+4. Press `Escape` to cancel without saving.
+
+The focus range is a visual highlight on the timeline — it does not trim the recording.
+
+If the mission set a focus range server-side via `OCAP_setFocusStart` / `OCAP_setFocusEnd`, it appears automatically when you open the recording.
+
+### Counter Display
+
+If the mission used `OCAP_counterInit`, a score counter appears on-screen during playback showing the tracked values for each side as they changed over time.
