@@ -108,3 +108,88 @@ Start the Arma 3 server. In the RPT log (`.rpt` file in the server logs director
 If BattlEye is enabled on your server, the extension must be whitelisted or `callExtension` calls will be silently blocked. Add an exception for `ocap_recorder_x64` in your BattlEye configuration. Refer to the [BattlEye documentation](https://www.battleye.com/) for your server's specific whitelist format.
 
 ---
+
+## Web Server: Bare Metal / Binary
+
+Use this method if you are running the web server directly on a Linux or Windows host without Docker.
+
+### 1. Extract the web server files
+
+From the release archive, extract the `web/` directory. It contains:
+
+```
+web/
+├── ocap-webserver          # Linux binary (or ocap-webserver.exe on Windows)
+├── assets/
+│   ├── markers/
+│   ├── ammo/
+│   └── fonts/
+└── setting.json.example
+```
+
+### 2. Create `setting.json`
+
+```bash
+cp setting.json.example setting.json
+```
+
+Edit `setting.json` and set `secret` to the same value as `api.apiKey` in the extension's `ocap_recorder.cfg.json`:
+
+```json
+{
+  "listen": "0.0.0.0:5000",
+  "secret": "your-shared-secret"
+}
+```
+
+See [Configuration Reference](configuration.md) for all options.
+
+### 3. Run the web server
+
+**Linux:**
+```bash
+chmod +x ocap-webserver
+./ocap-webserver
+```
+
+**Windows:**
+```
+ocap-webserver.exe
+```
+
+The server listens on port `5000` by default. Visit `http://<server-ip>:5000` to confirm it is running.
+
+### 4. Run as a persistent service (Linux)
+
+Create a systemd unit to keep the server running across reboots:
+
+```ini
+# /etc/systemd/system/ocap-web.service
+[Unit]
+Description=OCAP2 Web Server
+After=network.target
+
+[Service]
+Type=simple
+User=ocap
+WorkingDirectory=/opt/ocap/web
+ExecStart=/opt/ocap/web/ocap-webserver
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ocap-web
+```
+
+### 5. Firewall
+
+Open port `5000` (TCP) on the host firewall so that:
+- The Arma 3 server can upload recordings to the web server.
+- Players can access the playback UI in their browser.
+
+---
