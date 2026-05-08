@@ -1,0 +1,160 @@
+# Using OCAP
+
+OCAP has two usage layers: **mission integration** (SQF/CBA API for controlling recording from within a mission) and **playback** (the web UI for watching recordings).
+
+---
+
+## Part 1: Mission Integration
+
+### Auto-Start
+
+When `OCAP_settings_autoStart` is enabled (default), recording begins automatically after the briefing screen once the minimum player count (`OCAP_settings_minPlayerCount`, default 15) is connected. No mission-side scripting is required.
+
+When recording starts, every connected player receives a diary entry under **OCAPInfo** confirming the start time (elapsed in-mission time and UTC system time).
+
+If the minimum player count is never reached, recording does not start automatically. Use the `OCAP_record` CBA event or the admin diary controls to start it manually — see [Manual Recording Control](#manual-recording-control).
+
+See [Configuration Reference](configuration.md) for the relevant settings.
+
+### Ending a Mission and Exporting
+
+Call `ocap_fnc_exportData` server-side to end the recording and upload it to the web server. All parameters are optional.
+
+```sqf
+// No args — records "Mission ended"
+[] call ocap_fnc_exportData;
+
+// Winning side only
+[west] call ocap_fnc_exportData;
+
+// Side + outcome message
+[east, "OPFOR controlled all sectors!"] call ocap_fnc_exportData;
+
+// Side + message + tag (filterable in the recording selector)
+[east, "OPFOR controlled all sectors!", "PvP"] call ocap_fnc_exportData;
+```
+
+**Typical trigger pattern** — create a trigger that fires when objectives are complete, then in its On Activation field:
+
+```sqf
+if (isServer) then {
+    [east, "OPFOR has achieved all of their objectives!"] call ocap_fnc_exportData;
+    "end1" call BIS_fnc_endMissionServer;
+};
+```
+
+**Async save flow:** `ocap_fnc_exportData` is non-blocking. Players see an interim "saving…" toast immediately. The extension writes and uploads the recording in the background; once it finishes, a final diary entry confirms success or failure.
+
+**Minimum duration:** Recordings shorter than the configured minimum (default 20 minutes) are not saved. If the recording is too short, export is skipped and a diary entry explains why. Recording continues, so the mission can still be saved once the threshold is met — or bypass it with the `OCAP_exportData` CBA event (see [Manual Recording Control](#manual-recording-control)).
+
+> **Note:** If `OCAP_settings_saveMissionEnded` or `OCAP_settings_saveOnEmpty` is true, `ocap_fnc_exportData` is called automatically on the `MPEnded` event or when the server empties. See [Configuration Reference](configuration.md).
+
+### Manual Recording Control
+
+Three CBA server events let you control recording from scripts or admin diary controls. All require the caller to be a server admin or to have their Steam UID listed in `OCAP_administratorList`.
+
+| Event | Effect |
+|-------|--------|
+| `["OCAP_record"] call CBA_fnc_serverEvent;` | Start or resume recording |
+| `["OCAP_pause"] call CBA_fnc_serverEvent;` | Pause recording (data preserved; resume with `OCAP_record`) |
+| `["OCAP_exportData", [side, message, tag]] call CBA_fnc_serverEvent;` | Stop and save — **always bypasses minimum duration** |
+
+Examples:
+
+```sqf
+// Start recording manually (e.g. when a specific mission phase begins)
+["OCAP_record"] call CBA_fnc_serverEvent;
+
+// Pause recording (e.g. during a long mid-mission briefing)
+["OCAP_pause"] call CBA_fnc_serverEvent;
+
+// Force-save with side and message, ignoring minimum duration
+["OCAP_exportData", [west, "BLUFOR completed the objectives!", "TvT"]] call CBA_fnc_serverEvent;
+```
+
+**When to use CBA events vs. `ocap_fnc_exportData`:**
+- Use `ocap_fnc_exportData` in normal mission-end triggers — it respects minimum duration and is the standard mission-end path.
+- Use the `OCAP_exportData` CBA event when you need to force-save regardless of duration (admin manual export, server restart).
+- Use `OCAP_record` / `OCAP_pause` to gate recording around specific phases (e.g. don't record while players are slotting in).
+
+### Custom Events
+
+Fire custom events from any server-side script to add entries to the Events tab in the playback UI.
+
+**General event** — freeform text entry:
+```sqf
+["OCAP_customEvent", ["generalEvent", "Player reached the extraction zone"]] call CBA_fnc_serverEvent;
+```
+
+**Sector captured** — structured event with sector name, owning side, and world position:
+```sqf
+["OCAP_customEvent", ["captured", ["sector", "Sector Alpha", str west, getPosASL _sector]]] call CBA_fnc_localEvent;
+```
+
+**Sector contested** — sector is being fought over (no owning side yet):
+```sqf
+["OCAP_customEvent", ["contested", ["sector", "Sector Alpha", "", getPosASL _sector]]] call CBA_fnc_localEvent;
+```
+
+**End mission event** — log a mission-end message as a timeline event (separate from `ocap_fnc_exportData`):
+```sqf
+// With winning side
+["OCAP_customEvent", ["endMission", [str west, "BLUFOR controlled all sectors!"]]] call CBA_fnc_localEvent;
+
+// Message only
+["OCAP_customEvent", ["endMission", "Mission complete!"]] call CBA_fnc_localEvent;
+```
+
+> See the [OCAP wiki](https://github.com/OCAP2/OCAP/wiki/Custom-Game-Events) for extended custom event documentation.
+
+### Score Counters
+
+Track side-specific scores or ticket counts. Values appear as a live counter overlay in the playback UI.
+
+Initialize once at mission start:
+```sqf
+["OCAP_counterInit", [
+    [west, 0],
+    [east, 0]
+]] call CBA_fnc_serverEvent;
+```
+
+Update whenever the score changes:
+```sqf
+// Set BLUFOR score to 3
+["OCAP_counterEvent", [west, 3]] call CBA_fnc_serverEvent;
+```
+
+This system is independent of `BIS_fnc_respawnTickets`. Wire it to whatever scoring or ticket logic your mission uses.
+
+### Focus Windows
+
+Mark a sub-range of the recording as the key phase. The focused range is highlighted on the timeline scrubber in the playback UI.
+
+Set the in-point at the current capture frame:
+```sqf
+["OCAP_setFocusStart"] call CBA_fnc_serverEvent;
+```
+
+Set the out-point at the current capture frame:
+```sqf
+["OCAP_setFocusEnd"] call CBA_fnc_serverEvent;
+```
+
+Or specify explicit frame numbers:
+```sqf
+["OCAP_setFocusStart", [120]] call CBA_fnc_serverEvent;
+["OCAP_setFocusEnd", [850]] call CBA_fnc_serverEvent;
+```
+
+The focus range can also be set interactively in the playback UI using the `I` and `O` keyboard shortcuts — see [Focus Mode](#focus-mode).
+
+### Admin Controls (In-Game Diary)
+
+Players who are server admins, or whose Steam UID is in `OCAP_administratorList`, automatically receive an **OCAP Admin** tab in their briefing diary. It provides three clickable controls:
+
+- **Start/Resume Recording** — fires `OCAP_record`
+- **Pause Recording** — fires `OCAP_pause`
+- **Stop and Export Recording** — fires `OCAP_exportData`, bypassing minimum duration
+
+The tab is added on player connect and removed if the player logs out of admin. No mission-side scripting is needed — set `OCAP_administratorList` in CBA settings to grant specific UIDs access regardless of admin status.
