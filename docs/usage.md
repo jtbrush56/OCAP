@@ -169,7 +169,7 @@ Navigate to the web server address in any browser. The recording selector lists 
 
 - Use the **search box** to filter by mission name.
 - Use the **tag dropdown** to filter by tag (set via `ocap_fnc_exportData` or `OCAP_settings_saveTag`).
-- Use the **date pickers** to narrow by upload date.
+- Use the **map filter** to narrow by terrain or world name.
 
 Click any recording to open it in the playback view.
 
@@ -200,15 +200,13 @@ Click any unit icon on the map to lock the camera to that unit. The map pans to 
 
 ### Side Panel
 
-The side panel on the left has four tabs. Press `E` to hide it and maximize the map view.
+The side panel on the left has three tabs. Press `E` to hide it and maximize the map view.
 
 **Units** — all players, AI, and vehicles in the mission. Shows alive/dead state, group name, and slotted role. Click a unit to follow them on the map.
 
 **Events** — a chronological, filterable log of game events: kills, deaths, hits, player connects/disconnects, and any custom events fired via `OCAP_customEvent`. Click any event to jump to that frame. Use the filter controls to show or hide event types (e.g. hide hits to reduce noise).
 
 **Stats** — kill counts and mission summary statistics.
-
-**Chat** — in-game chat messages recorded during the session, with timestamps.
 
 ### Focus Mode
 
