@@ -36,3 +36,75 @@ If you are running the web server in Docker or on a game server panel, you only 
 Use `:full` if you want to process and host custom Arma 3 terrain tiles through the admin UI. Use `:latest` otherwise.
 
 ---
+
+## Arma 3 Server: Installing the Addon and Extension
+
+This section applies regardless of which web server deployment method you choose. Complete it first.
+
+**Prerequisites:**
+- Arma 3 dedicated server (Windows or Linux)
+- [CBA_A3](https://steamcommunity.com/workshop/filedetails/?id=450814997) installed as a server mod
+
+### 1. Extract the `@ocap/` folder
+
+Extract your release archive and locate the `@ocap/` directory. It contains:
+
+```
+@ocap/
+├── addons/              # SQF PBO files (the addon)
+├── keys/                # .bikey signature key(s)
+├── ocap_recorder_x64.dll   # (Windows) the extension
+├── ocap_recorder_x64.so    # (Linux) the extension
+└── ocap_recorder.cfg.json.example
+```
+
+### 2. Place `@ocap/` on the server
+
+Copy the entire `@ocap/` folder into your server's mods directory — the same location where your other server mods live (e.g. alongside `@CBA_A3`).
+
+### 3. Install the signature key
+
+Copy all `.bikey` files from `@ocap/keys/` into the server's root `keys/` directory.
+
+> **Why:** Arma 3 signature verification requires each mod's public key to be in the server's `keys/` folder. Without this the server will reject the mod at startup.
+
+### 4. Add `@ocap` to the `-serverMod` startup parameter
+
+In your server's start script or configuration, add `@ocap` to the `-serverMod` parameter:
+
+```
+./arma3server -serverMod="@CBA_A3;@ocap" ...
+```
+
+> **`-serverMod` vs `-mod`:** `-serverMod` loads the mod only on the server. Clients do **not** need to install or download `@ocap`. If you add it to `-mod` by mistake, clients will be required to have it too.
+
+### 5. Configure the extension
+
+Copy the example config and edit it:
+
+```bash
+cp @ocap/ocap_recorder.cfg.json.example @ocap/ocap_recorder.cfg.json
+```
+
+At minimum, set:
+
+```json
+{
+  "api": {
+    "serverUrl": "http://<your-web-server-ip>:5000",
+    "apiKey": "your-shared-secret"
+  }
+}
+```
+
+The `apiKey` value must match the `secret` field in the web server's `setting.json` (or the `OCAP_SECRET` environment variable). See [Configuration Reference](configuration.md) for all options.
+
+### 6. Start the server and verify
+
+Start the Arma 3 server. In the RPT log (`.rpt` file in the server logs directory), look for lines containing `OCAP` to confirm the addon and extension initialized correctly.
+
+### BattlEye
+
+If BattlEye is enabled on your server, the extension must be whitelisted or `callExtension` calls will be silently blocked. Add an exception for `ocap_recorder_x64` in your BattlEye configuration. Refer to the [BattlEye documentation](https://www.battleye.com/) for your server's specific whitelist format.
+
+---
