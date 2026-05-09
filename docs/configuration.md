@@ -294,3 +294,5 @@ Timeouts for the underlying HTTP server. All values are Go duration strings (e.g
 | `readHeaderTimeout` | `"30s"` | Maximum duration for reading request headers. |
 | `writeTimeout` | `"120s"` | Maximum duration before timing out a response write. |
 | `idleTimeout` | `"120s"` | Maximum time to wait for the next request on a keep-alive connection. |
+
+> **Security note:** Increasing `readTimeout` or `idleTimeout` beyond the defaults raises exposure to [Slowloris](https://en.wikipedia.org/wiki/Slowloris_(cyber_attack))-style attacks. Keep the defaults unless you have a specific reason to raise them (e.g. very large file uploads).
