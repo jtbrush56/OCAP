@@ -88,21 +88,21 @@ Fire custom events from any server-side script to add entries to the Events tab 
 
 **Sector captured** — structured event with sector name, owning side, and world position:
 ```sqf
-["OCAP_customEvent", ["captured", ["sector", "Sector Alpha", str west, getPosASL _sector]]] call CBA_fnc_localEvent;
+["OCAP_customEvent", ["captured", ["sector", "Sector Alpha", str west, getPosASL _sector]]] call CBA_fnc_serverEvent;
 ```
 
 **Sector contested** — sector is being fought over (no owning side yet):
 ```sqf
-["OCAP_customEvent", ["contested", ["sector", "Sector Alpha", "", getPosASL _sector]]] call CBA_fnc_localEvent;
+["OCAP_customEvent", ["contested", ["sector", "Sector Alpha", "", getPosASL _sector]]] call CBA_fnc_serverEvent;
 ```
 
 **End mission event** — log a mission-end message as a timeline event (separate from `OCAP_recorder_fnc_exportData`):
 ```sqf
 // With winning side
-["OCAP_customEvent", ["endMission", [str west, "BLUFOR controlled all sectors!"]]] call CBA_fnc_localEvent;
+["OCAP_customEvent", ["endMission", [str west, "BLUFOR controlled all sectors!"]]] call CBA_fnc_serverEvent;
 
 // Message only
-["OCAP_customEvent", ["endMission", "Mission complete!"]] call CBA_fnc_localEvent;
+["OCAP_customEvent", ["endMission", "Mission complete!"]] call CBA_fnc_serverEvent;
 ```
 
 > See the [OCAP wiki](https://github.com/OCAP2/OCAP/wiki/Custom-Game-Events) for extended custom event documentation.
