@@ -62,13 +62,7 @@ Extract your release archive and locate the `@ocap/` directory. It contains:
 
 Copy the entire `@ocap/` folder into your server's mods directory — the same location where your other server mods live (e.g. alongside `@CBA_A3`).
 
-### 3. Install the signature key
-
-Copy all `.bikey` files from `@ocap/keys/` into the server's root `keys/` directory.
-
-> **Why:** Arma 3 signature verification requires each mod's public key to be in the server's `keys/` folder. Without this the server will reject the mod at startup.
-
-### 4. Add `@ocap` to the `-serverMod` startup parameter
+### 3. Add `@ocap` to the `-serverMod` startup parameter
 
 In your server's start script or configuration, add `@ocap` to the `-serverMod` parameter:
 
@@ -78,7 +72,7 @@ In your server's start script or configuration, add `@ocap` to the `-serverMod` 
 
 > **`-serverMod` vs `-mod`:** `-serverMod` loads the mod only on the server. Clients do **not** need to install or download `@ocap`. If you add it to `-mod` by mistake, clients will be required to have it too.
 
-### 5. Configure the extension
+### 4. Configure the extension
 
 Copy the example config and edit it:
 
@@ -99,13 +93,15 @@ At minimum, set:
 
 The `apiKey` value must match the `secret` field in the web server's `setting.json` (or the `OCAP_SECRET` environment variable). See [Configuration Reference](configuration.md) for all options.
 
-### 6. Start the server and verify
+### 5. Start the server and verify
 
 Start the Arma 3 server. In the RPT log (`.rpt` file in the server logs directory), look for lines containing `OCAP` to confirm the addon and extension initialized correctly.
 
-### BattlEye
+### Windows: unblock the extension DLL
 
-If BattlEye is enabled on your server, the extension must be whitelisted or `callExtension` calls will be silently blocked. Add an exception for `ocap_recorder_x64` in your BattlEye configuration. Refer to the [BattlEye documentation](https://www.battleye.com/) for your server's specific whitelist format.
+When downloaded from the internet, Windows may mark `ocap_recorder_x64.dll` as blocked due to security zone policies. If the extension silently fails to load, right-click the `.dll` in Explorer, open **Properties**, and tick **Unblock** at the bottom of the General tab.
+
+> **BattlEye:** Server mods loaded via `-serverMod` bypass BattlEye entirely — no whitelisting is required.
 
 ---
 
