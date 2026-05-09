@@ -167,9 +167,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=ocap
-WorkingDirectory=/opt/ocap/web
-ExecStart=/opt/ocap/web/ocap-webserver
+User=<user>
+WorkingDirectory=/path/to/ocap/web
+ExecStart=/path/to/ocap/web/ocap-webserver
 Restart=on-failure
 RestartSec=5
 
