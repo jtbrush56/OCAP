@@ -52,7 +52,7 @@ Extract your release archive and locate the `@ocap/` directory. It contains:
 ```
 @ocap/
 ├── addons/              # SQF PBO files (the addon)
-├── keys/                # .bikey signature key(s)
+├── keys/                 # not needed for -serverMod use
 ├── ocap_recorder_x64.dll   # (Windows) the extension
 ├── ocap_recorder_x64.so    # (Linux) the extension
 └── ocap_recorder.cfg.json.example
@@ -97,11 +97,11 @@ The `apiKey` value must match the `secret` field in the web server's `setting.js
 
 Start the Arma 3 server. In the RPT log (`.rpt` file in the server logs directory), look for lines containing `OCAP` to confirm the addon and extension initialized correctly.
 
-### Windows: unblock the extension DLL
+> **BattlEye:** Server mods loaded via `-serverMod` bypass BattlEye entirely — no whitelisting is required.
+
+### Windows only — if the extension fails to load
 
 When downloaded from the internet, Windows may mark `ocap_recorder_x64.dll` as blocked due to security zone policies. If the extension silently fails to load, right-click the `.dll` in Explorer, open **Properties**, and tick **Unblock** at the bottom of the General tab.
-
-> **BattlEye:** Server mods loaded via `-serverMod` bypass BattlEye entirely — no whitelisting is required.
 
 ---
 
