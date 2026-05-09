@@ -3,7 +3,7 @@
 	url = https://github.com/OCAP2/addon.git
 [submodule "web"]
 	path = web
-	url = https://github.com/OCAP2/web.git
+	url = https://github.com/jtbrush56/ocap_web.git
 [submodule "extension"]
 	path = extension
 	url = https://github.com/OCAP2/extension.git
